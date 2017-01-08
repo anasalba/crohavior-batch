@@ -43,7 +43,7 @@ public class sparktohbase {
 
         conf = HBaseConfiguration.create();
         conf.clear();
-        conf.set("hbase.zookeeper.quorum", "127.0.0.1");
+        conf.set("hbase.zookeeper.quorum", "10.128.0.3");
         conf.set("hbase.zookeeper.property.clientPort","2181");
 
 //        2017-01-04T19:43:22.707
