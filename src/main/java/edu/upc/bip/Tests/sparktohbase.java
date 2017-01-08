@@ -52,9 +52,9 @@ public class sparktohbase {
         // create connection with HBase
 
 
-        conf.set(TableInputFormat.INPUT_TABLE, "csvtohbase2");
+        conf.set(TableInputFormat.INPUT_TABLE, "csvtohbase");
 
-        JavaRDD<String> javaRDD = spark.textFile("/home/bip16-admin/data_orig/new/*.csv").filter(
+        JavaRDD<String> javaRDD = spark.textFile("/home/bip16-admin/data_orig/*/Trajectory/*.csv").filter(
                 new Function<String, Boolean>() {
                     @Override
                     public Boolean call(String line) throws Exception {
