@@ -76,7 +76,7 @@ public final class Batch {
             return org.apache.hadoop.hbase.util.Base64.encodeBytes(proto.toByteArray());
         }
         public static void main(String[] args) throws Exception {
-            HBaseUtils.deleteTable(tablename);
+            //HBaseUtils.deleteTable(tablename);
             HBaseUtils.creatTable(tablename, familys);
 
 /*            JavaSparkContext spark = new JavaSparkContext(
