@@ -31,7 +31,7 @@ public class sparktohbase {
 
     public static void main (String[] args) throws Exception {
 
-        HBaseUtils.deleteTable("csvtohbase");
+        //HBaseUtils.deleteTable("csvtohbase");
         HBaseUtils.creatTable("csvtohbase", new String[] {"data"});
 
         JavaSparkContext spark = new JavaSparkContext(
