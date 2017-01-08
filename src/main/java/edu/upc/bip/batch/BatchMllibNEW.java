@@ -101,7 +101,7 @@ public final class BatchMllibNEW implements Serializable{
             }
         });
 
-        JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions).cache();
+        JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions,1000).cache();
 
         if(transactionstsWithRoundedCoordinates.count() > 0) {
             LocalDateTime minTimestamp = transactions.min(new TimestampComparator()).getTimestamp();
@@ -198,7 +198,7 @@ public final class BatchMllibNEW implements Serializable{
                 }
             }
         });
-        JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions).cache();
+        JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions,1000).cache();
 
         if (transactionstsWithRoundedCoordinates.count() > 0) {
 

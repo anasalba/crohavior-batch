@@ -86,8 +86,8 @@ public class HBaseUtils {
             put.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier), Bytes
                     .toBytes(value));
             table.put(put);
-            System.out.println("insert recored " + rowKey + " to table "
-                    + tableName + " ok.");
+            /*System.out.println("insert recored " + rowKey + " to table "
+                    + tableName + " ok.");*/
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -171,7 +171,7 @@ public class HBaseUtils {
     /**
      * Get a row
      */
-    public static List<String> getAllRawIDs (String tableName) throws IOException{
+    public static List<String> getAllRowIDs(String tableName) throws IOException{
         try{
             Connection connection = ConnectionFactory.createConnection(conf);
             HTable table = (HTable) connection.getTable(TableName.valueOf(tableName));
@@ -191,6 +191,54 @@ public class HBaseUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static long getMinTimestamp(String tableName) throws IOException{
+        try{
+            Connection connection = ConnectionFactory.createConnection(conf);
+            HTable table = (HTable) connection.getTable(TableName.valueOf(tableName));
+            Scan s = new Scan();
+
+            ResultScanner ss = table.getScanner(s);
+            Long result = Long.MAX_VALUE;
+            for(Result r:ss){
+                for(Cell cell : r.rawCells()){
+                    if(result>cell.getTimestamp())
+                    {
+                        result = cell.getTimestamp();
+                    }
+                }
+            }
+            ss.close();
+            return result;
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return Long.MAX_VALUE;
+    }
+
+    public static long getMaxTimestamp(String tableName) throws IOException{
+        try{
+            Connection connection = ConnectionFactory.createConnection(conf);
+            HTable table = (HTable) connection.getTable(TableName.valueOf(tableName));
+            Scan s = new Scan();
+
+            ResultScanner ss = table.getScanner(s);
+            Long result = Long.MIN_VALUE;
+            for(Result r:ss){
+                for(Cell cell : r.rawCells()){
+                    if(result<cell.getTimestamp())
+                    {
+                        result = cell.getTimestamp();
+                    }
+                }
+            }
+            ss.close();
+            return result;
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return Long.MIN_VALUE;
     }
 
 
@@ -245,7 +293,7 @@ public class HBaseUtils {
             HBaseUtils.addRecord(tablename, "baoniu", "grade", "", "4");
             HBaseUtils.addRecord(tablename, "baoniu", "course", "math", "89");
 
-            List<String> asd = HBaseUtils.getAllRawIDs(tablename);
+            List<String> asd = HBaseUtils.getAllRowIDs(tablename);
             List<String> adsd = HBaseUtils.getRecordRangeValues(tablename,"zkb","zkb");
 
             System.out.println("===========get one record========");

@@ -87,7 +87,7 @@ public class BatchNEW implements Serializable{
             }
         });
 
-        JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions).cache();
+        JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions,1000).cache();
 
         LocalDateTime minTimestamp = transactions.min(new TimestampComparator()).getTimestamp();
         LocalDateTime maxTimestamp = transactions.max(new TimestampComparator()).getTimestamp();
@@ -136,7 +136,7 @@ public class BatchNEW implements Serializable{
             }
         });
 
-        JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions).cache();
+        JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions,1000).cache();
 
         if(transactionstsWithRoundedCoordinates.count() > 0) {
             LocalDateTime minTimestamp = transactions.min(new TimestampComparator()).getTimestamp();

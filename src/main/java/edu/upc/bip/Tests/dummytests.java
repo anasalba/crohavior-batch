@@ -23,14 +23,20 @@ public class dummytests implements Serializable{
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime date = LocalDateTime.now().minusHours(1);
         System.out.println(formatter.format(date));
+////
+//        HBaseUtils.deleteTable("dataminingupc");
+//        HBaseUtils.creatTable("dataminingupc", new String[] {"data"});
+//
+        System.gc();
+     //   System.out.println(HBaseUtils.getMinTimestamp("transactions"));
+     //   System.out.println(HBaseUtils.getMaxTimestamp("transactions"));
 
-/*        HBaseUtils.creatTable("operations", new String[] {"data"});
 
-        Operation.addToOperationsTable("2008-10-23T02:57:40", "2008-10-23T02:59:30",0.05,0.8);
-        Operation.addToOperationsTable("2008-10-23T02:59:15", "2008-10-23T03:05:15",0.05,0.8);*/
+//        Operation.addToOperationsTable("2008-10-23T02:57:40", "2008-10-23T02:59:30",0.05,0.8);
+//        Operation.addToOperationsTable("2008-10-23T02:59:15", "2008-10-23T03:05:15",0.05,0.8);*/
 
-        List<Operation> operations = Operation.getAllOperations();
-        System.out.println(operations.size());
+//        List<Operation> operations = Operation.getAllOperations();
+//        System.out.println(operations.size());
 /*        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Date start = formatter.parse("2008-10-23T02:53:15");
         Date end = formatter.parse("2008-10-23T04:34:50");

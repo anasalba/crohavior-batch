@@ -28,16 +28,20 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
 import org.apache.hadoop.hbase.protobuf.ProtobufUtil;
 import org.apache.hadoop.hbase.protobuf.generated.ClientProtos;
+import org.apache.hadoop.hbase.protobuf.generated.FilterProtos;
 import org.apache.hadoop.hbase.util.*;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.storage.StorageLevel;
 import org.codehaus.jackson.map.ObjectMapper;
 import scala.Tuple2;
 
@@ -45,6 +49,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 
@@ -59,10 +65,11 @@ public final class Batch {
         private static final Integer Longtitude = 1;
         private static final Integer UserID = 7;
         private static final Integer TimeStamp = 4;
-        private static final String tablename = "heatmap";
+        private static final String tablename = "heatmapupc";
         private static final String[] familys = { "data" };
         private static ObjectMapper objectMapper = new ObjectMapper();
         private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        static List<LocalDateTime> localDateTimeList = new ArrayList<>();
         static String convertScanToString(Scan scan) throws IOException {
 
             ClientProtos.Scan proto = ProtobufUtil.toScan(scan);
@@ -93,9 +100,9 @@ public final class Batch {
                         }
                     }
             );*/
-
+            localDateTimeList.add(LocalDateTime.now());
             JavaSparkContext spark = new JavaSparkContext(
-                    new SparkConf().setAppName("JavaWordCount").setMaster("local[200]").set("spark.executor.memory","8g").set("spark.driver.maxResultSize","2g")
+                    new SparkConf().setAppName("JavaWordCount").setMaster("local[200]").set("spark.executor.memory","10g").set("spark.driver.maxResultSize","4g")
             );
 
             Configuration conf = null;
@@ -108,13 +115,16 @@ public final class Batch {
 
             connection = ConnectionFactory.createConnection(conf);
             Scan s = new Scan();
+//            FilterList filterList = new FilterList(new PageFilter(400));
+//            s.setFilter(filterList);
             //    s.setStartRow(Bytes.toBytes("t2008-10-23 02:53:151"));
             //    s.setStopRow(Bytes.toBytes("t2008-10-23 02:53:161"));
             conf.set(TableInputFormat.SCAN, convertScanToString(s));
 
-
-            conf.set(TableInputFormat.INPUT_TABLE, "transactions");
+            localDateTimeList.add(LocalDateTime.now());
+            conf.set(TableInputFormat.INPUT_TABLE, "csvtohbase");
             JavaPairRDD<ImmutableBytesWritable, Result> hbaseRDD = spark.newAPIHadoopRDD(conf, TableInputFormat.class, ImmutableBytesWritable.class, Result.class);
+            localDateTimeList.add(LocalDateTime.now());
             JavaRDD<Transaction> transactions = hbaseRDD.map(new Function<Tuple2<ImmutableBytesWritable,Result>, Transaction>() {
                 public Transaction  call(Tuple2<ImmutableBytesWritable, Result> tuple) throws Exception {
 
@@ -127,20 +137,21 @@ public final class Batch {
                     }
                 }
             });
+            //System.out.print(transactions.count());
+            localDateTimeList.add(LocalDateTime.now());
+            JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions,1000).persist(StorageLevel.MEMORY_ONLY());;
+            localDateTimeList.add(LocalDateTime.now());
 
-            JavaRDD<Transaction> transactionstsWithRoundedCoordinates = BatchUtils.roundCoordinates(transactions).cache();
 
 
-
-
-            LocalDateTime minTimestamp = transactions.min(new TimestampComparator()).getTimestamp();
-            LocalDateTime maxTimestamp = transactions.max(new TimestampComparator()).getTimestamp();
+            LocalDateTime minTimestamp = transactionstsWithRoundedCoordinates.min(new TimestampComparator()).getTimestamp();
+            LocalDateTime maxTimestamp = transactionstsWithRoundedCoordinates.max(new TimestampComparator()).getTimestamp();
             long duration = minTimestamp.until(maxTimestamp, ChronoUnit.SECONDS);
             int maxDetail = (int) duration;
             long[] steps = {5,10,15};
             for(long step:steps) {
                 long timeStep = step;
-                for (int i = 0, j = 0; j < maxDetail; i++, j += timeStep) {
+                for (int i = 0, j = 0; j < 3600*4; i++, j += timeStep) {
 
                     if(i%60==0)
                     {
@@ -155,7 +166,12 @@ public final class Batch {
                 }
 
             }
+            localDateTimeList.add(LocalDateTime.now());
             spark.stop();
-
+            localDateTimeList.add(LocalDateTime.now());
+            for (LocalDateTime localDateTime:localDateTimeList)
+            {
+                System.out.println(localDateTime);
+            }
         }
 }

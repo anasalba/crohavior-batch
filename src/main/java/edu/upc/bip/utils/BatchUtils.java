@@ -34,13 +34,14 @@ public class BatchUtils {
      * @param measurements | The dataset of measurements
      * @return A set of measurements with rounded coordinates
      */
-    public static JavaRDD<Transaction> roundCoordinates(JavaRDD<Transaction> measurements) {
+    public static JavaRDD<Transaction> roundCoordinates(JavaRDD<Transaction> measurements, double roundFactor) {
         return measurements.map(
                 new Function<Transaction, Transaction>() {
                     @Override
                     public Transaction call(Transaction measurement) throws Exception {
-                        double roundedLatitude = (double) (Math.round((measurement.getCoordinate().getLatitude() * 1000))) / 1000;
-                        double roundedLongitude = (double) (Math.round((measurement.getCoordinate().getLongitude() * 1000))) / 1000;
+
+                        double roundedLatitude = (double) (Math.round((measurement.getCoordinate().getLatitude() * roundFactor))) / roundFactor;
+                        double roundedLongitude = (double) (Math.round((measurement.getCoordinate().getLongitude() * roundFactor))) / roundFactor;
                         Coordinate roundedCoordinate = new Coordinate(roundedLatitude, roundedLongitude);
                         measurement.setRoundedCoordinate(roundedCoordinate);
                         return measurement;
