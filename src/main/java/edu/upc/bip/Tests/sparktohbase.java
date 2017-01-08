@@ -54,7 +54,7 @@ public class sparktohbase {
 
         conf.set(TableInputFormat.INPUT_TABLE, "csvtohbase2");
 
-        JavaRDD<String> javaRDD = spark.textFile("/home/osboxes/bip16-admin/new/*.csv").filter(
+        JavaRDD<String> javaRDD = spark.textFile("/home/bip16-admin/data_orig/new/*.csv").filter(
                 new Function<String, Boolean>() {
                     @Override
                     public Boolean call(String line) throws Exception {
