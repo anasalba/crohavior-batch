@@ -31,8 +31,8 @@ public class sparktohbase {
 
     public static void main (String[] args) throws Exception {
 
-        HBaseUtils.deleteTable("csvtohbase2");
-        HBaseUtils.creatTable("csvtohbase2", new String[] {"data"});
+        HBaseUtils.deleteTable("csvtohbase");
+        HBaseUtils.creatTable("csvtohbase", new String[] {"data"});
 
         JavaSparkContext spark = new JavaSparkContext(
                 new SparkConf().setAppName("JavaWordCount").setMaster("local[200]").set("spark.executor.memory","8g").set("spark.driver.maxResultSize","2g")
@@ -54,7 +54,7 @@ public class sparktohbase {
 
         conf.set(TableInputFormat.INPUT_TABLE, "csvtohbase2");
 
-        JavaRDD<String> javaRDD = spark.textFile("/home/osboxes/data_orig/new/*.csv").filter(
+        JavaRDD<String> javaRDD = spark.textFile("/home/osboxes/bip16-admin/new/*.csv").filter(
                 new Function<String, Boolean>() {
                     @Override
                     public Boolean call(String line) throws Exception {
@@ -67,7 +67,7 @@ public class sparktohbase {
         ).cache();
 // new Hadoop API configuration
         Job newAPIJobConfiguration1 = Job.getInstance(conf);
-        newAPIJobConfiguration1.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE, "csvtohbase2");
+        newAPIJobConfiguration1.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE, "csvtohbase");
         newAPIJobConfiguration1.setOutputFormatClass(org.apache.hadoop.hbase.mapreduce.TableOutputFormat.class);
 
 // create Key, Value pair to store in HBase
